@@ -1,0 +1,5 @@
+authToken = "ACCESS_TOKEN"
+spreadsheetId = "SPREADSHEET_ID"
+sheetName = "SHEET_NAME"
+dataRange = "SHEET_VALUES_RANGE"
+templatePath = "TEMPLATE_PATH"
