@@ -80,10 +80,10 @@ public function main() returns error? {
 
             gmail:Message|error sendResult = gmailClient->/users/me/messages/send.post(emailMessage);
             if sendResult is error {
-                io:println("Failed to send email to ", emailValue, ": ", sendResult.message());
+                io:println("Failed to send email to ",nameValue, " <", emailValue, ">: ", sendResult.message());
                 skipped += 1;
             } else {
-                io:println("Email sent successfully to ", emailValue);
+                io:println("Email sent successfully to ", nameValue, " <", emailValue, ">");
                 sent += 1;
             }
 
