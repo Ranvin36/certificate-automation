@@ -1,5 +1,8 @@
 authToken = "ACCESS_TOKEN"
-spreadsheetId = "SPREADSHEET_ID"
-sheetName = "SHEET_NAME"
-dataRange = "SHEET_VALUES_RANGE"
+spreadsheetId = "SPEADSHEET_ID"
+sheetName = "SHEET_NUMBER"
+dataRange = "A2:C"
 templatePath = "TEMPLATE_PATH"
+certificateUrlColumnIndex = 2
+emailColumnIndex = 1
+nameColumnNumber = 0
