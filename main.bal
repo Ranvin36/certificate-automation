@@ -8,6 +8,9 @@ configurable string spreadsheetId = ?;
 configurable string sheetName = ?;
 configurable string dataRange = ?;
 configurable string templatePath = ?;
+configurable int nameColumnNumber = 1;
+configurable int emailColumnIndex = 2;
+configurable int certificateUrlColumnIndex = 3;
 
 // Setup Google Sheets and Gmail clients using the provided authentication token
 sheets:Client sheetsClient = check new ({
@@ -46,31 +49,33 @@ public function main() returns error? {
 
         string templateContent = check io:fileReadString(templatePath);
 
-        // Validate, process, and send emails in a single loop
+        // Validate, process, and send emails
         int sent = 0;
         int skipped = 0;
 
         foreach var row in values {
-            if row.length() < 2 {
+            if row.length() <= nameColumnNumber || row.length() <= emailColumnIndex || row.length() <= certificateUrlColumnIndex {
                 io:println("Skipping invalid row (insufficient columns): ", row);
                 skipped += 1;
                 continue;
             }
 
-            (int|string|decimal) nameCell = row[0];
-            (int|string|decimal) emailCell = row[1];
+            (int|string|decimal) nameCell = row[nameColumnNumber];
+            (int|string|decimal) emailCell = row[emailColumnIndex];
+            (int|string|decimal) certificateUrlCell = row[certificateUrlColumnIndex];
             
             string nameValue = nameCell.toString().trim();
             string emailValue = emailCell.toString().trim();
+            string certificateUrlValue = certificateUrlCell.toString().trim();
 
-            if nameValue == "" || emailValue == "" {
-                io:println("Skipping row with empty name or email: ", row);
+            if nameValue == "" || emailValue == "" || certificateUrlValue == "" {
+                io:println("Skipping row with empty name, email, or certificate URL: ", row);
                 skipped += 1;
                 continue;
             }
 
             // Render and send email
-            string emailBody = renderTemplate(templateContent, nameValue);
+            string emailBody = renderTemplate(templateContent, nameValue, certificateUrlValue);
 
             gmail:MessageRequest emailMessage = {
                 to: [emailValue],
@@ -103,12 +108,15 @@ public function main() returns error? {
 }
 
 
-// Used to render the email template by replacing the placeholder with the recipient's name.
-function renderTemplate(string templateContent, string recipientName) returns string {
+// Used to render the email template by replacing placeholders with recipient data.
+function renderTemplate(string templateContent, string recipientName, string certificateUrl) returns string {
     string escapedName = escapeHtml(recipientName);
     
     string:RegExp recipientNamePattern = re `\{\{recipientName\}\}`;
     string renderedContent = recipientNamePattern.replaceAll(templateContent, escapedName);
+    
+    string:RegExp certificateUrlPattern = re `\{\{certificateUrl\}\}`;
+    renderedContent = certificateUrlPattern.replaceAll(renderedContent, certificateUrl);
     
     return renderedContent;
 }
